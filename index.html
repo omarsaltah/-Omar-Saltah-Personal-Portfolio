@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0d">
+<title>Chiaroscuro — a field guide to light in architecture</title>
+<meta name="description" content="An interactive mobile guide to how light shapes space: sun paths, shading, soft vs hard shadows, bounced light and lighting design.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#top">Chiaroscuro</a>
+  <nav class="dots" aria-label="Chapters">
+    <button data-go="c1" aria-label="Chapter 1: Time">1</button>
+    <button data-go="c2" aria-label="Chapter 2: Shade">2</button>
+    <button data-go="c3" aria-label="Chapter 3: Edge">3</button>
+    <button data-go="c4" aria-label="Chapter 4: Bounce">4</button>
+    <button data-go="c5" aria-label="Chapter 5: Compose">5</button>
+  </nav>
+  <div class="bar" aria-hidden="true"><i></i></div>
+</header>
+
+<main id="top">
+
+  <section class="hero" aria-label="Introduction">
+    <div class="stage" aria-hidden="true">
+      <div class="cast"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+      <div class="floorline"></div>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow">An interactive field guide</p>
+      <h1>Light is the first <em>material</em>.</h1>
+      <p class="lede">Walls only hold the dark back. Five touch-and-drag experiments on how sun, shade and reflection shape the space around us.</p>
+      <button class="cta" data-go="c1">Begin <span aria-hidden="true">↓</span></button>
+      <p class="quote">“Architecture is the masterly, correct and magnificent play of masses brought together in light.”<br><span>Le Corbusier</span></p>
+    </div>
+  </section>
+
+  <!-- 1 · TIME -->
+  <section class="chapter" id="c1" data-ch="1">
+    <p class="kicker"><span>01</span> Time</p>
+    <h2>The sun draws the room</h2>
+    <p>A window is a sundial. As the sun climbs and falls, the patch of light on the floor slides, shrinks and stretches. Low sun reaches deep; high sun barely gets in.</p>
+    <figure>
+      <svg id="svg1" viewBox="0 0 400 250" role="img" aria-label="Section through a room with a sunlit window"></svg>
+      <figcaption id="hud1" class="hud"></figcaption>
+    </figure>
+    <div class="ctl">
+      <label for="r1">Time of day <output id="o1">12:00</output></label>
+      <input id="r1" type="range" min="6" max="18" step="0.05" value="9.2">
+    </div>
+    <div class="read" id="read1"></div>
+    <div class="goal" data-goal="1"><i class="chk"></i><span>Make the sun reach the <b>back wall</b>.</span></div>
+    <p class="world"><b>In the world:</b> the Pantheon’s oculus throws a disc of sun that crawls around the dome all day, a clock made of light.</p>
+  </section>
+
+  <!-- 2 · SHADE -->
+  <section class="chapter" id="c2" data-ch="2">
+    <p class="kicker"><span>02</span> Shade</p>
+    <h2>Shape the opening</h2>
+    <p>Summer sun is high, winter sun is low. A simple overhang can tell them apart: it blocks the steep summer rays and lets the shallow winter ones slip underneath.</p>
+    <figure>
+      <svg id="svg2" viewBox="0 0 400 250" role="img" aria-label="Section through a room with an adjustable overhang"></svg>
+      <figcaption id="hud2" class="hud"></figcaption>
+    </figure>
+    <div class="chips" id="seasons" role="group" aria-label="Season">
+      <button data-th="25">Winter 25°</button>
+      <button data-th="48">Spring 48°</button>
+      <button data-th="72" class="on">Summer 72°</button>
+    </div>
+    <div class="ctl">
+      <label for="r2">Overhang depth <output id="o2">0.0 m</output></label>
+      <input id="r2" type="range" min="0" max="56" step="1" value="0">
+    </div>
+    <div class="ctl">
+      <label for="r2b">Window height <output id="o2b">2.4 m</output></label>
+      <input id="r2b" type="range" min="90" max="135" step="1" value="120">
+    </div>
+    <div class="read" id="read2"></div>
+    <div class="goal" data-goal="2"><i class="chk"></i><span>Block the <b>summer</b> sun fully while the <b>winter</b> sun still enters.</span></div>
+    <p class="world"><b>In the world:</b> Le Corbusier’s <i>brise-soleil</i> turned this one trick into a facade language.</p>
+  </section>
+
+  <!-- 3 · EDGE -->
+  <section class="chapter" id="c3" data-ch="3">
+    <p class="kicker"><span>03</span> Edge</p>
+    <h2>Hard light, soft light</h2>
+    <p>The bigger the light source, the softer the shadow’s edge. A point of sun carves a razor line; an overcast sky wraps around objects and the shadow melts. <b>Drag the lamp.</b></p>
+    <figure>
+      <svg id="svg3" viewBox="0 0 360 250" role="img" aria-label="A draggable lamp casting a shadow of a column"></svg>
+      <figcaption id="hud3" class="hud"></figcaption>
+    </figure>
+    <div class="chips" id="sizes" role="group" aria-label="Light source">
+      <button data-d="2">Sun</button>
+      <button data-d="24" class="on">Lamp</button>
+      <button data-d="62">Overcast</button>
+    </div>
+    <div class="ctl">
+      <label for="r3">Source size <output id="o3">24</output></label>
+      <input id="r3" type="range" min="1" max="70" step="1" value="24">
+    </div>
+    <div class="read" id="read3"></div>
+    <div class="goal" data-goal="3"><i class="chk"></i><span>Cast a <b>razor-sharp</b> shadow edge.</span></div>
+    <p class="world"><b>In the world:</b> galleries use diffuse north light from skylights so paintings glow without harsh shadows.</p>
+  </section>
+
+  <!-- 4 · BOUNCE -->
+  <section class="chapter" id="c4" data-ch="4">
+    <p class="kicker"><span>04</span> Bounce</p>
+    <h2>Surfaces carry light further</h2>
+    <p>Sun on the floor becomes a second light source. A pale surface bounces it up to the ceiling and fills the room; a dark one swallows it. Polished stone redirects it like a mirror.</p>
+    <figure>
+      <svg id="svg4" viewBox="0 0 400 250" role="img" aria-label="Room where the floor material changes how much light bounces"></svg>
+      <figcaption id="hud4" class="hud"></figcaption>
+    </figure>
+    <div class="chips mats" id="mats" role="group" aria-label="Floor material">
+      <button data-m="0"><i style="background:#2a2a30"></i>Charcoal</button>
+      <button data-m="1"><i style="background:#9b6a3c"></i>Timber</button>
+      <button data-m="2" class="on"><i style="background:#e8e2d6"></i>Plaster</button>
+      <button data-m="3"><i style="background:#6f93b3"></i>Polished</button>
+    </div>
+    <div class="meter"><span>Bounced light</span><div><i id="m4"></i></div><output id="mo4">0%</output></div>
+    <div class="read" id="read4"></div>
+    <div class="goal" data-goal="4"><i class="chk"></i><span>Make the <b>ceiling</b> glow with a pale floor.</span></div>
+    <p class="world"><b>In the world:</b> light shelves and white ceilings push daylight deep into a room by bouncing it.</p>
+  </section>
+
+  <!-- 5 · COMPOSE -->
+  <section class="chapter" id="c5" data-ch="5">
+    <p class="kicker"><span>05</span> Compose</p>
+    <h2>Light a plan</h2>
+    <p>Now you’re the lighting designer. This is a floor plan seen from above. <b>Drag lights and columns</b>: shadows are real, traced from every edge. Mix warm and cool, and soften the source.</p>
+    <figure class="plan">
+      <canvas id="cv5" aria-label="Interactive floor plan with draggable lights and columns"></canvas>
+    </figure>
+    <div class="chips" id="temps" role="group" aria-label="Selected light colour">
+      <button data-k="0" class="on"><i style="background:#ffaa5a"></i>Candle</button>
+      <button data-k="1"><i style="background:#fff2dc"></i>Daylight</button>
+      <button data-k="2"><i style="background:#8fbaff"></i>Cool</button>
+    </div>
+    <div class="ctl">
+      <label for="r5">Softness <output id="o5">8</output></label>
+      <input id="r5" type="range" min="0" max="26" step="1" value="8">
+    </div>
+    <div class="row">
+      <button class="btn" id="add5">+ Add light</button>
+      <button class="btn ghost" id="reset5">Reset</button>
+    </div>
+    <div class="read" id="read5"></div>
+    <div class="goal" data-goal="5"><i class="chk"></i><span>Mix a <b>warm</b> and a <b>cool</b> light in one plan.</span></div>
+    <p class="world"><b>In the world:</b> in Tadao Ando’s Church of the Light, one cross cut through a concrete wall is the whole lighting scheme.</p>
+  </section>
+
+  <section class="finale" id="end">
+    <h2>You read light now.</h2>
+    <ul>
+      <li><b>Time</b> — low sun reaches deep, high sun stays near the glass.</li>
+      <li><b>Shade</b> — geometry can filter seasons.</li>
+      <li><b>Edge</b> — bigger sources, softer shadows.</li>
+      <li><b>Bounce</b> — surfaces redistribute light.</li>
+      <li><b>Compose</b> — place, colour and soften to set a mood.</li>
+    </ul>
+    <p class="muted" id="score">0 of 5 challenges complete</p>
+    <button class="btn ghost" id="resetAll">Reset progress</button>
+    <p class="foot">Omar Saltah · Creative Direction</p>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
