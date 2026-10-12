@@ -1,0 +1,874 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0d">
+<title>Chiaroscuro — a field guide to light in architecture</title>
+<meta name="description" content="An interactive mobile guide to how light shapes space: sun paths, shading, soft vs hard shadows, bounced light and lighting design.">
+<style>
+:root{
+  --bg:#0c0b0d; --card:#15141a; --ink:#f3ede2; --muted:#a59f94; --warm:#ffb35c;
+  --line:rgba(255,255,255,.09); --ok:#8fe0a6;
+  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --pad:max(18px,env(safe-area-inset-left));
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-text-size-adjust:100%;overflow-x:hidden}
+main{max-width:560px;margin:0 auto}
+h1,h2{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;margin:0}
+p{margin:0 0 1em}
+b{font-weight:600;color:#fff}
+.muted{color:var(--muted)}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:calc(10px + env(safe-area-inset-top)) var(--pad) 10px;background:rgba(12,11,13,.78);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{font-family:var(--serif);font-size:18px;color:var(--ink);text-decoration:none;letter-spacing:.02em}
+.dots{display:flex;gap:6px}
+.dots button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font:600 12px var(--sans);cursor:pointer}
+.dots button.done{background:var(--warm);border-color:var(--warm);color:#1a1206}
+.bar{position:absolute;left:0;bottom:-1px;height:2px;width:100%}
+.bar i{display:block;height:100%;width:0;background:var(--warm);transition:width .5s}
+
+/* hero */
+.hero{position:relative;min-height:calc(100svh - 52px);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.stage{position:absolute;inset:0;background:linear-gradient(#121014,#1b1713 70%,#0c0b0d)}
+.cast{position:absolute;left:50%;top:3%;width:62vw;max-width:340px;aspect-ratio:1/1.05;display:grid;grid-template:repeat(3,1fr)/repeat(2,1fr);gap:10px;
+  transform:translate(-50%,0) translate(var(--tx,0px),var(--ty,0px)) skew(var(--sk,-14deg)) scaleY(var(--sy,1));transform-origin:50% 0;
+  filter:blur(.6px);will-change:transform}
+.cast b{background:linear-gradient(160deg,#ffd9a0,#ff9d4d);opacity:.9;border-radius:2px;box-shadow:0 0 90px 24px rgba(255,170,80,.28)}
+.floorline{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(transparent,#0c0b0d 80%)}
+.hero-copy{position:relative;padding:60px var(--pad) 28px;background:linear-gradient(transparent,rgba(12,11,13,.88) 90px);max-width:560px;margin:0 auto;width:100%}
+.eyebrow,.kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--warm);margin-bottom:12px}
+h1{font-size:clamp(40px,12vw,64px);line-height:1.02}
+h1 em{color:var(--warm)}
+.lede{font-size:18px;color:#d8d1c4;margin:16px 0 22px;max-width:30em}
+.cta{font:600 16px var(--sans);color:#1a1206;background:var(--warm);border:0;border-radius:999px;padding:14px 26px;cursor:pointer}
+.quote{margin:30px 0 0;font:italic 15px/1.5 var(--serif);color:var(--muted);max-width:28em}
+.quote span{font:12px var(--sans);letter-spacing:.14em;text-transform:uppercase;font-style:normal}
+
+/* chapters */
+.chapter{padding:56px var(--pad) 24px;border-top:1px solid var(--line)}
+.chapter h2{font-size:clamp(30px,8.5vw,40px);line-height:1.1;margin-bottom:14px}
+.kicker span{display:inline-block;margin-right:8px;opacity:.6}
+.chapter>p{color:#d4cdc0}
+figure{margin:20px calc(var(--pad) * -1) 14px;position:relative;background:#050506;border-block:1px solid var(--line)}
+figure svg,figure canvas{display:block;width:100%;height:auto}
+.hud{position:absolute;left:var(--pad);bottom:8px;font:600 12px var(--sans);letter-spacing:.04em;color:#fff;background:rgba(0,0,0,.55);padding:4px 10px;border-radius:99px;pointer-events:none}
+.hud:empty{display:none}
+.plan{background:#08080a}
+.plan canvas{width:100%;touch-action:pan-y}
+#svg3{touch-action:pan-y}
+
+/* controls */
+.ctl{margin:14px 0}
+.ctl label{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:6px}
+.ctl output{color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin:0;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#3a2c1c,var(--warm))}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#3a2c1c,var(--warm))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-12px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 6px rgba(255,179,92,.25),0 2px 8px #000}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 6px rgba(255,179,92,.25),0 2px 8px #000}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chips button{flex:1 1 auto;min-height:44px;display:inline-flex;gap:8px;align-items:center;justify-content:center;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 14px var(--sans);cursor:pointer}
+.chips button.on{border-color:var(--warm);background:#2a1f12;color:#fff}
+.chips i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.3)}
+.row{display:flex;gap:8px;margin:6px 0 14px}
+.btn{flex:1;min-height:46px;border-radius:12px;border:0;background:var(--warm);color:#1a1206;font:600 15px var(--sans);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4}
+.meter{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin:6px 0 14px}
+.meter div{flex:1;height:8px;border-radius:4px;background:#1c1b20;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8a5a1d,#ffd9a0);transition:width .35s}
+.meter output{width:38px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+
+.read{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:15px;color:#e6dfd2;min-height:3.4em;margin:12px 0}
+.goal{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1px dashed rgba(255,179,92,.45);border-radius:14px;font-size:15px;margin:12px 0}
+.goal .chk{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--warm);position:relative}
+.goal.done{border-style:solid;border-color:var(--ok);background:rgba(143,224,166,.07)}
+.goal.done .chk{background:var(--ok);border-color:var(--ok)}
+.goal.done .chk::after{content:"";position:absolute;left:7px;top:2px;width:6px;height:12px;border:solid #0b2214;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.world{font-size:14px;color:var(--muted);margin-top:16px}
+.world b{color:var(--warm)}
+
+.finale{padding:64px var(--pad) calc(60px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.finale h2{font-size:34px;margin-bottom:16px}
+.finale ul{padding-left:18px;color:#d4cdc0}
+.finale li{margin:6px 0}
+.foot{margin-top:48px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,40px);opacity:0;
+  background:var(--ok);color:#0b2214;font:600 14px var(--sans);padding:10px 18px;border-radius:99px;transition:.35s;z-index:30;pointer-events:none}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+.rv{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rv{opacity:1;transform:none;transition:none}.bar i,.meter i,.toast{transition:none}}
+@media (min-width:700px){main{border-inline:1px solid var(--line)}}
+
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#top">Chiaroscuro</a>
+  <nav class="dots" aria-label="Chapters">
+    <button data-go="c1" aria-label="Chapter 1: Time">1</button>
+    <button data-go="c2" aria-label="Chapter 2: Shade">2</button>
+    <button data-go="c3" aria-label="Chapter 3: Edge">3</button>
+    <button data-go="c4" aria-label="Chapter 4: Bounce">4</button>
+    <button data-go="c5" aria-label="Chapter 5: Compose">5</button>
+  </nav>
+  <div class="bar" aria-hidden="true"><i></i></div>
+</header>
+
+<main id="top">
+
+  <section class="hero" aria-label="Introduction">
+    <div class="stage" aria-hidden="true">
+      <div class="cast"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+      <div class="floorline"></div>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow">An interactive field guide</p>
+      <h1>Light is the first <em>material</em>.</h1>
+      <p class="lede">Walls only hold the dark back. Five touch-and-drag experiments on how sun, shade and reflection shape the space around us.</p>
+      <button class="cta" data-go="c1">Begin <span aria-hidden="true">↓</span></button>
+      <p class="quote">“Architecture is the masterly, correct and magnificent play of masses brought together in light.”<br><span>Le Corbusier</span></p>
+    </div>
+  </section>
+
+  <!-- 1 · TIME -->
+  <section class="chapter" id="c1" data-ch="1">
+    <p class="kicker"><span>01</span> Time</p>
+    <h2>The sun draws the room</h2>
+    <p>A window is a sundial. As the sun climbs and falls, the patch of light on the floor slides, shrinks and stretches. Low sun reaches deep; high sun barely gets in.</p>
+    <figure>
+      <svg id="svg1" viewBox="0 0 400 250" role="img" aria-label="Section through a room with a sunlit window"></svg>
+      <figcaption id="hud1" class="hud"></figcaption>
+    </figure>
+    <div class="ctl">
+      <label for="r1">Time of day <output id="o1">12:00</output></label>
+      <input id="r1" type="range" min="6" max="18" step="0.05" value="9.2">
+    </div>
+    <div class="read" id="read1"></div>
+    <div class="goal" data-goal="1"><i class="chk"></i><span>Make the sun reach the <b>back wall</b>.</span></div>
+    <p class="world"><b>In the world:</b> the Pantheon’s oculus throws a disc of sun that crawls around the dome all day, a clock made of light.</p>
+  </section>
+
+  <!-- 2 · SHADE -->
+  <section class="chapter" id="c2" data-ch="2">
+    <p class="kicker"><span>02</span> Shade</p>
+    <h2>Shape the opening</h2>
+    <p>Summer sun is high, winter sun is low. A simple overhang can tell them apart: it blocks the steep summer rays and lets the shallow winter ones slip underneath.</p>
+    <figure>
+      <svg id="svg2" viewBox="0 0 400 250" role="img" aria-label="Section through a room with an adjustable overhang"></svg>
+      <figcaption id="hud2" class="hud"></figcaption>
+    </figure>
+    <div class="chips" id="seasons" role="group" aria-label="Season">
+      <button data-th="25">Winter 25°</button>
+      <button data-th="48">Spring 48°</button>
+      <button data-th="72" class="on">Summer 72°</button>
+    </div>
+    <div class="ctl">
+      <label for="r2">Overhang depth <output id="o2">0.0 m</output></label>
+      <input id="r2" type="range" min="0" max="56" step="1" value="0">
+    </div>
+    <div class="ctl">
+      <label for="r2b">Window height <output id="o2b">2.4 m</output></label>
+      <input id="r2b" type="range" min="90" max="135" step="1" value="120">
+    </div>
+    <div class="read" id="read2"></div>
+    <div class="goal" data-goal="2"><i class="chk"></i><span>Block the <b>summer</b> sun fully while the <b>winter</b> sun still enters.</span></div>
+    <p class="world"><b>In the world:</b> Le Corbusier’s <i>brise-soleil</i> turned this one trick into a facade language.</p>
+  </section>
+
+  <!-- 3 · EDGE -->
+  <section class="chapter" id="c3" data-ch="3">
+    <p class="kicker"><span>03</span> Edge</p>
+    <h2>Hard light, soft light</h2>
+    <p>The bigger the light source, the softer the shadow’s edge. A point of sun carves a razor line; an overcast sky wraps around objects and the shadow melts. <b>Drag the lamp.</b></p>
+    <figure>
+      <svg id="svg3" viewBox="0 0 360 250" role="img" aria-label="A draggable lamp casting a shadow of a column"></svg>
+      <figcaption id="hud3" class="hud"></figcaption>
+    </figure>
+    <div class="chips" id="sizes" role="group" aria-label="Light source">
+      <button data-d="2">Sun</button>
+      <button data-d="24" class="on">Lamp</button>
+      <button data-d="62">Overcast</button>
+    </div>
+    <div class="ctl">
+      <label for="r3">Source size <output id="o3">24</output></label>
+      <input id="r3" type="range" min="1" max="70" step="1" value="24">
+    </div>
+    <div class="read" id="read3"></div>
+    <div class="goal" data-goal="3"><i class="chk"></i><span>Cast a <b>razor-sharp</b> shadow edge.</span></div>
+    <p class="world"><b>In the world:</b> galleries use diffuse north light from skylights so paintings glow without harsh shadows.</p>
+  </section>
+
+  <!-- 4 · BOUNCE -->
+  <section class="chapter" id="c4" data-ch="4">
+    <p class="kicker"><span>04</span> Bounce</p>
+    <h2>Surfaces carry light further</h2>
+    <p>Sun on the floor becomes a second light source. A pale surface bounces it up to the ceiling and fills the room; a dark one swallows it. Polished stone redirects it like a mirror.</p>
+    <figure>
+      <svg id="svg4" viewBox="0 0 400 250" role="img" aria-label="Room where the floor material changes how much light bounces"></svg>
+      <figcaption id="hud4" class="hud"></figcaption>
+    </figure>
+    <div class="chips mats" id="mats" role="group" aria-label="Floor material">
+      <button data-m="0"><i style="background:#2a2a30"></i>Charcoal</button>
+      <button data-m="1"><i style="background:#9b6a3c"></i>Timber</button>
+      <button data-m="2" class="on"><i style="background:#e8e2d6"></i>Plaster</button>
+      <button data-m="3"><i style="background:#6f93b3"></i>Polished</button>
+    </div>
+    <div class="meter"><span>Bounced light</span><div><i id="m4"></i></div><output id="mo4">0%</output></div>
+    <div class="read" id="read4"></div>
+    <div class="goal" data-goal="4"><i class="chk"></i><span>Make the <b>ceiling</b> glow with a pale floor.</span></div>
+    <p class="world"><b>In the world:</b> light shelves and white ceilings push daylight deep into a room by bouncing it.</p>
+  </section>
+
+  <!-- 5 · COMPOSE -->
+  <section class="chapter" id="c5" data-ch="5">
+    <p class="kicker"><span>05</span> Compose</p>
+    <h2>Light a plan</h2>
+    <p>Now you’re the lighting designer. This is a floor plan seen from above. <b>Drag lights and columns</b>: shadows are real, traced from every edge. Mix warm and cool, and soften the source.</p>
+    <figure class="plan">
+      <canvas id="cv5" aria-label="Interactive floor plan with draggable lights and columns"></canvas>
+    </figure>
+    <div class="chips" id="temps" role="group" aria-label="Selected light colour">
+      <button data-k="0" class="on"><i style="background:#ffaa5a"></i>Candle</button>
+      <button data-k="1"><i style="background:#fff2dc"></i>Daylight</button>
+      <button data-k="2"><i style="background:#8fbaff"></i>Cool</button>
+    </div>
+    <div class="ctl">
+      <label for="r5">Softness <output id="o5">8</output></label>
+      <input id="r5" type="range" min="0" max="26" step="1" value="8">
+    </div>
+    <div class="row">
+      <button class="btn" id="add5">+ Add light</button>
+      <button class="btn ghost" id="reset5">Reset</button>
+    </div>
+    <div class="read" id="read5"></div>
+    <div class="goal" data-goal="5"><i class="chk"></i><span>Mix a <b>warm</b> and a <b>cool</b> light in one plan.</span></div>
+    <p class="world"><b>In the world:</b> in Tadao Ando’s Church of the Light, one cross cut through a concrete wall is the whole lighting scheme.</p>
+  </section>
+
+  <section class="finale" id="end">
+    <h2>You read light now.</h2>
+    <ul>
+      <li><b>Time</b> — low sun reaches deep, high sun stays near the glass.</li>
+      <li><b>Shade</b> — geometry can filter seasons.</li>
+      <li><b>Edge</b> — bigger sources, softer shadows.</li>
+      <li><b>Bounce</b> — surfaces redistribute light.</li>
+      <li><b>Compose</b> — place, colour and soften to set a mood.</li>
+    </ul>
+    <p class="muted" id="score">0 of 5 challenges complete</p>
+    <button class="btn ghost" id="resetAll">Reset progress</button>
+    <p class="foot">Omar Saltah · Creative Direction</p>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* Chiaroscuro — interactive light & shadow guide. Vanilla JS, no dependencies. */
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const mix = (c1, c2, t) => c1.map((v, i) => Math.round(lerp(v, c2[i], t)));
+const rgb = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const NS = 'http://www.w3.org/2000/svg';
+const el = (n, a = {}, p) => {
+  const e = document.createElementNS(NS, n);
+  for (const k in a) e.setAttribute(k, a[k]);
+  if (p) p.appendChild(e);
+  return e;
+};
+const set = (e, a) => { for (const k in a) e.setAttribute(k, a[k]); };
+
+/* ---------- progress ---------- */
+const goals = {};
+try { Object.assign(goals, JSON.parse(localStorage.getItem('chiaroscuro') || '{}')); } catch (_) {}
+const toastEl = $('#toast');
+let toastTimer;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+function paintProgress() {
+  let n = 0;
+  for (let i = 1; i <= 5; i++) {
+    const d = !!goals[i];
+    if (d) n++;
+    $(`.dots button[data-go=c${i}]`).classList.toggle('done', d);
+    $(`.goal[data-goal="${i}"]`).classList.toggle('done', d);
+  }
+  $('.bar i').style.width = (n / 5 * 100) + '%';
+  $('#score').textContent = `${n} of 5 challenges complete`;
+}
+function complete(n) {
+  if (goals[n]) return;
+  goals[n] = true;
+  try { localStorage.setItem('chiaroscuro', JSON.stringify(goals)); } catch (_) {}
+  paintProgress();
+  toast('✓ Challenge complete');
+  if (navigator.vibrate && navigator.userActivation?.hasBeenActive) try { navigator.vibrate(30); } catch (_) {}
+}
+$('#resetAll').onclick = () => {
+  for (const k in goals) delete goals[k];
+  try { localStorage.removeItem('chiaroscuro'); } catch (_) {}
+  paintProgress();
+};
+$$('[data-go]').forEach(b => b.addEventListener('click', () => {
+  $('#' + b.dataset.go).scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' });
+}));
+
+/* ---------- drag helper (blocks page scroll only when grabbing a handle) ---------- */
+function drag(target, toLocal, hit, onMove, onStart) {
+  let tok = null;
+  target.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    if (hit(toLocal(t.clientX, t.clientY))) e.preventDefault();
+  }, { passive: false });
+  target.addEventListener('pointerdown', e => {
+    const p = toLocal(e.clientX, e.clientY);
+    const h = hit(p);
+    if (!h) return;
+    tok = h;
+    try { target.setPointerCapture(e.pointerId); } catch (_) {}
+    if (onStart) onStart(p, h);
+    onMove(p, h);
+    e.preventDefault();
+  });
+  target.addEventListener('pointermove', e => { if (tok) onMove(toLocal(e.clientX, e.clientY), tok); });
+  const end = () => { tok = null; };
+  target.addEventListener('pointerup', end);
+  target.addEventListener('pointercancel', end);
+}
+
+/* ======================================================================
+   Room section (chapters 1, 2, 4)
+   Room coordinates: x → right from inner wall face, y ↑ from floor. 50 units = 1 m.
+   ====================================================================== */
+const W = 290, H = 150, T = 12, OX = 92, FY = 205;
+const X = x => OX + x, Y = y => FY - y;
+const poly = a => a.map(p => X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1)).join(' ');
+
+function trace(x, y, dx, dy) {
+  const c = [];
+  if (dy < 0) c.push({ t: -y / dy, face: 'floor' });
+  if (dy > 0) c.push({ t: (H - y) / dy, face: 'ceil' });
+  if (dx > 0) c.push({ t: (W - x) / dx, face: 'wall' });
+  const b = c.reduce((a, d) => (a.t < d.t ? a : d));
+  return { x: x + dx * b.t, y: y + dy * b.t, face: b.face };
+}
+/* Sun beam through the window, accounting for wall thickness + overhang. */
+function beamInfo(theta, s, h, o) {
+  const r = theta * Math.PI / 180, tn = Math.tan(r);
+  const dx = Math.cos(r), dy = -Math.sin(r);
+  const yTop = h - (T + o) * tn;
+  if (yTop <= s + 0.5) return { lit: false, yTop };
+  return { lit: true, yTop, dx, dy, hu: trace(0, yTop, dx, dy), hl: trace(0, s, dx, dy) };
+}
+const cornerOf = (a, b) => {
+  const f = a.face + '>' + b.face;
+  if (f === 'wall>floor') return [W, 0];
+  if (f === 'wall>ceil') return [W, H];
+  return null;
+};
+
+class Room {
+  constructor(svg, id) {
+    this.svg = svg;
+    const defs = el('defs', {}, svg);
+    this.sky = el('linearGradient', { id: id + 'sky', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+    this.s0 = el('stop', { offset: 0 }, this.sky);
+    this.s1 = el('stop', { offset: 1 }, this.sky);
+    const g = el('radialGradient', { id: id + 'glow' }, defs);
+    this.gs0 = el('stop', { offset: 0 }, g);
+    el('stop', { offset: 1, 'stop-color': '#000', 'stop-opacity': 0 }, g);
+    const cp = el('clipPath', { id: id + 'clip' }, defs);
+    el('rect', { x: X(0), y: Y(H), width: W, height: H }, cp);
+    this.gid = id;
+
+    el('rect', { x: 0, y: 0, width: 400, height: 250, fill: `url(#${id}sky)` }, svg);
+    // ground outside
+    this.ground = el('rect', { x: 0, y: FY, width: 400, height: 45, fill: '#1b1a1d' }, svg);
+    this.room = el('rect', { x: X(0), y: Y(H), width: W, height: H }, svg);
+    const inner = el('g', { 'clip-path': `url(#${id}clip)` }, svg);
+    this.glow = el('ellipse', { fill: `url(#${id}glow)`, opacity: 0 }, inner);
+    this.ceilGlow = el('rect', { x: X(0), y: Y(H), width: W, height: 26, opacity: 0 }, inner);
+    this.beam = el('polygon', {}, svg); // exterior + interior beam (clipped by svg bounds)
+    this.refl = el('polygon', { 'clip-path': `url(#${id}clip)` }, svg);
+    this.line = el('polyline', { fill: 'none', 'stroke-width': 5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'clip-path': `url(#${id}clip)` }, svg);
+    this.rline = el('polyline', { fill: 'none', 'stroke-width': 5, 'stroke-linecap': 'round', 'clip-path': `url(#${id}clip)` }, svg);
+    // person for scale (1.7 m)
+    const p = el('g', { fill: '#08080a', opacity: .85 }, svg);
+    el('circle', { cx: X(215), cy: Y(78), r: 7 }, p);
+    el('rect', { x: X(215) - 8, y: Y(68), width: 16, height: 68, rx: 7 }, p);
+    // walls
+    this.wBelow = el('rect', { fill: '#2a2927' }, svg);
+    this.wAbove = el('rect', { fill: '#2a2927' }, svg);
+    el('rect', { x: X(W), y: Y(H), width: T, height: H, fill: '#2a2927' }, svg);
+    el('rect', { x: X(-T), y: Y(H) - 10, width: W + 2 * T, height: 10, fill: '#2a2927' }, svg);
+    this.floorSlab = el('rect', { x: X(-T), y: FY, width: W + 2 * T, height: 12, fill: '#444' }, svg);
+    this.floorTop = el('rect', { x: X(0), y: FY - 3, width: W, height: 3, fill: '#444' }, svg);
+    this.over = el('rect', { height: 4, fill: '#3a3835' }, svg);
+    // sun
+    this.sunGlow = el('circle', { r: 26, opacity: .35 }, svg);
+    this.sunDot = el('circle', { r: 10 }, svg);
+    this.sunRays = el('circle', { r: 0 }, svg);
+    // thin dimension
+    el('text', { x: X(W / 2), y: FY + 28, 'text-anchor': 'middle', fill: '#6b665c', 'font-size': 10, 'font-family': 'system-ui' }, svg).textContent = '5.8 m';
+  }
+  /* st: {theta, s, h, o, floor:{color,albedo,tint,spec}} */
+  update(st) {
+    const { theta, s, h, o } = st;
+    const fl = st.floor || { color: [88, 84, 78], albedo: .35, tint: [255, 230, 190], spec: false };
+    const t = clamp((theta - 4) / 68, 0, 1);
+    const tt = Math.pow(t, .6);
+    set(this.s0, { 'stop-color': rgb(mix([30, 34, 70], [86, 156, 232], t)) });
+    set(this.s1, { 'stop-color': rgb(mix([255, 150, 92], [205, 230, 252], t)) });
+    const sun = mix([255, 138, 66], [255, 246, 222], tt);
+    const r = theta * Math.PI / 180;
+    const sx = 80 - 56 * Math.cos(r), sy = 140 - 56 * Math.sin(r);
+    set(this.sunDot, { cx: sx, cy: sy, fill: rgb(sun) });
+    set(this.sunGlow, { cx: sx, cy: sy, fill: rgb(sun) });
+
+    // walls
+    set(this.wBelow, { x: X(-T), y: Y(s), width: T, height: s });
+    set(this.wAbove, { x: X(-T), y: Y(H), width: T, height: H - h });
+    set(this.over, { x: X(-T - o), y: Y(h) - 4, width: o, height: 4, opacity: o > 0 ? 1 : 0 });
+    set(this.floorSlab, { fill: rgb(mix(fl.color, [0, 0, 0], .25)) });
+    set(this.floorTop, { fill: rgb(fl.color) });
+
+    const b = beamInfo(theta, s, h, o);
+    let reachFloor = 0, backWall = false, floorLen = 0, power = 0;
+    let fx = null;
+    if (b.lit) {
+      const L = 110;
+      const pts = [[-b.dx * L, b.yTop - b.dy * L], [b.hu.x, b.hu.y]];
+      const c = cornerOf(b.hu, b.hl);
+      if (c) pts.push(c);
+      pts.push([b.hl.x, b.hl.y], [-b.dx * L, s - b.dy * L]);
+      set(this.beam, { points: poly(pts), fill: rgb(sun, .34 + .16 * t) });
+      // landing strips
+      const lp = [];
+      if (b.hl.face === 'floor') {
+        const xb = b.hu.face === 'floor' ? b.hu.x : W - 1.5;
+        fx = [b.hl.x, b.hu.face === 'floor' ? b.hu.x : W];
+        lp.push([b.hl.x, 1.5], [xb, 1.5]);
+        floorLen = fx[1] - fx[0];
+        if (b.hu.face === 'wall') lp.push([W - 1.5, b.hu.y]);
+      } else {
+        lp.push([W - 1.5, b.hl.y], [W - 1.5, b.hu.y]);
+      }
+      backWall = b.hu.face === 'wall';
+      reachFloor = Math.min(W, b.hu.face === 'floor' ? b.hu.x : W);
+      set(this.line, { points: poly(lp.length ? lp : [[0, 0]]), stroke: rgb(mix(sun, [255, 255, 255], .35)), opacity: .95 });
+      power = clamp(Math.max(floorLen, backWall ? 60 : 0) / 90, 0, 1) * (.4 + .6 * Math.sqrt(t));
+    } else {
+      set(this.beam, { points: '' });
+      set(this.line, { points: '' });
+    }
+
+    // specular reflection from a polished floor
+    if (b.lit && fl.spec && fx) {
+      const A = trace(fx[0], 0, b.dx, -b.dy), B = trace(fx[1], 0, b.dx, -b.dy);
+      const pts = [[fx[0], 0], [fx[1], 0], [B.x, B.y]];
+      const c = cornerOf(B, A);
+      if (c) pts.push(c);
+      pts.push([A.x, A.y]);
+      set(this.refl, { points: poly(pts), fill: rgb(sun, .26) });
+      const rl = [];
+      if (A.face === 'ceil') { rl.push([A.x, H - 1.5], [B.face === 'ceil' ? B.x : W, H - 1.5]); }
+      set(this.rline, { points: poly(rl.length ? rl : [[0, 0]]), stroke: rgb(mix(sun, [255, 255, 255], .5)), opacity: rl.length ? .95 : 0 });
+      this.specHit = rl.length > 0;
+    } else {
+      set(this.refl, { points: '' });
+      set(this.rline, { points: '', opacity: 0 });
+      this.specHit = false;
+    }
+
+    // bounce glow (diffuse) tinted by the floor
+    const diffuse = fl.spec ? .16 : fl.albedo;
+    const glowStrength = clamp(diffuse * power * 1.15, 0, 1);
+    const cx = fx ? (fx[0] + fx[1]) / 2 : W * .75;
+    set(this.glow, { cx: X(cx), cy: Y(30), rx: 190, ry: 150, opacity: glowStrength });
+    set(this.gs0, { 'stop-color': rgb(fl.tint), 'stop-opacity': .85 });
+    set(this.ceilGlow, { fill: rgb(fl.tint), opacity: clamp(glowStrength * .55 + (this.specHit ? .22 : 0), 0, .8) });
+
+    // interior ambient
+    const amb = clamp(.12 + .2 * t + power * (.12 + .5 * diffuse), 0, 1);
+    set(this.room, { fill: rgb(mix([17, 17, 24], [112, 106, 98], amb)) });
+
+    this.metrics = {
+      reachM: reachFloor / 50, backWall, floorLenM: floorLen / 50, lit: b.lit,
+      bounce: clamp(diffuse * power, 0, 1), spec: this.specHit, power, amb, theta,
+    };
+    return this.metrics;
+  }
+}
+
+/* ---------- Chapter 1: time ---------- */
+(function () {
+  const room = new Room($('#svg1'), 'a');
+  const r = $('#r1'), out = $('#o1'), read = $('#read1'), hud = $('#hud1');
+  const thetaOf = hr => 4 + 68 * Math.sin(Math.PI * (hr - 6) / 12);
+  const fmt = hr => {
+    const m = Math.round(hr * 60), hh = Math.floor(m / 60) % 24, mm = m % 60;
+    return `${hh}:${String(mm).padStart(2, '0')}`;
+  };
+  function upd() {
+    const hr = +r.value, th = Math.max(4, thetaOf(hr));
+    const m = room.update({ theta: th, s: 35, h: 120, o: 0 });
+    out.textContent = fmt(hr);
+    hud.textContent = `Sun ${Math.round(th)}° high`;
+    let msg;
+    if (m.backWall) msg = '<b>Low, warm sun skims the whole room</b> and climbs the back wall. Long light feels dramatic and intimate.';
+    else if (th > 55) msg = `<b>Overhead sun</b> only reaches ${m.reachM.toFixed(1)} m in. Bright, crisp and short, with a cool, white colour.`;
+    else msg = `<b>Mid-height sun</b> pushes light ${m.reachM.toFixed(1)} m across the floor. Lower sun means deeper reach.`;
+    read.innerHTML = msg;
+    if (m.backWall) complete(1);
+  }
+  r.addEventListener('input', upd);
+  upd();
+})();
+
+/* ---------- Chapter 2: shade ---------- */
+(function () {
+  const room = new Room($('#svg2'), 'b');
+  const ro = $('#r2'), rh = $('#r2b'), oo = $('#o2'), oh = $('#o2b'), read = $('#read2'), hud = $('#hud2');
+  let theta = 72;
+  const S = 35;
+  function upd() {
+    const o = +ro.value, h = +rh.value;
+    oo.textContent = (o / 50).toFixed(1) + ' m';
+    oh.textContent = (h / 50).toFixed(1) + ' m';
+    const m = room.update({ theta, s: S, h, o });
+    hud.textContent = `Sun ${theta}°`;
+    const sum = beamInfo(72, S, h, o), win = beamInfo(25, S, h, o);
+    const winReach = win.lit ? Math.min(W, win.hu.face === 'floor' ? win.hu.x : W) / 50 : 0;
+    const sumTxt = sum.lit ? '<span style="color:#ff9d7a">sun gets in</span>' : '<span style="color:#8fe0a6">blocked</span>';
+    const winTxt = win.lit ? `<span style="color:#8fe0a6">reaches ${winReach.toFixed(1)} m</span>` : '<span style="color:#ff9d7a">blocked</span>';
+    read.innerHTML = `Summer noon: ${sumTxt}<br>Winter noon: ${winTxt}`;
+    if (!sum.lit && win.lit && winReach >= 2) complete(2);
+  }
+  $$('#seasons button').forEach(b => b.addEventListener('click', () => {
+    $$('#seasons button').forEach(x => x.classList.toggle('on', x === b));
+    theta = +b.dataset.th; upd();
+  }));
+  ro.addEventListener('input', upd); rh.addEventListener('input', upd);
+  upd();
+})();
+
+/* ---------- Chapter 4: bounce ---------- */
+(function () {
+  const room = new Room($('#svg4'), 'c');
+  const mats = [
+    { name: 'Charcoal', color: [42, 42, 48], albedo: .06, tint: [150, 150, 175], spec: false },
+    { name: 'Timber', color: [155, 106, 60], albedo: .32, tint: [255, 178, 105], spec: false },
+    { name: 'Plaster', color: [232, 226, 214], albedo: .82, tint: [255, 240, 214], spec: false },
+    { name: 'Polished stone', color: [111, 147, 179], albedo: .5, tint: [190, 215, 240], spec: true },
+  ];
+  let mi = 2;
+  const read = $('#read4'), hud = $('#hud4');
+  const notes = [
+    'Dark floors <b>absorb</b> about 94% of the sun. The patch is vivid but the room stays gloomy.',
+    'Timber returns the sun <b>warm and amber</b>: colour of the surface becomes colour of the light.',
+    'Pale plaster bounces most of it. The <b>whole ceiling glows</b>, so the room feels bigger and calmer.',
+    'Polished stone behaves like a mirror: the beam <b>re-aims at the ceiling</b> as a sharp second patch.',
+  ];
+  let touched = false;
+  function upd() {
+    const f = mats[mi];
+    const m = room.update({ theta: 38, s: 35, h: 120, o: 0, floor: f });
+    $('#m4').style.width = Math.round(m.bounce * 100) + '%';
+    $('#mo4').textContent = Math.round((f.spec ? .85 : f.albedo) * 100) + '%';
+    hud.textContent = f.name;
+    read.innerHTML = notes[mi];
+    if (mi === 2 && touched) complete(4);
+  }
+  $$('#mats button').forEach(b => b.addEventListener('click', () => {
+    $$('#mats button').forEach(x => x.classList.toggle('on', x === b));
+    mi = +b.dataset.m; touched = true; upd();
+  }));
+  upd();
+})();
+
+/* ---------- Chapter 3: soft vs hard shadows ---------- */
+(function () {
+  const svg = $('#svg3');
+  const GY = 185, GB = 235, CX1 = 170, CX2 = 190, CT = 110;
+  const defs = el('defs', {}, svg);
+  const bg = el('linearGradient', { id: 'd-bg', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  el('stop', { offset: 0, 'stop-color': '#17161c' }, bg);
+  el('stop', { offset: 1, 'stop-color': '#26221d' }, bg);
+  const lit = el('radialGradient', { id: 'd-lit', gradientUnits: 'userSpaceOnUse', r: 260 }, defs);
+  const ls0 = el('stop', { offset: 0, 'stop-color': '#ffe3b4', 'stop-opacity': .95 }, lit);
+  el('stop', { offset: 1, 'stop-color': '#ffe3b4', 'stop-opacity': .05 }, lit);
+  const fil = el('filter', { id: 'd-blur', x: '-50%', y: '-50%', width: '200%', height: '200%' }, defs);
+  const gb = el('feGaussianBlur', { stdDeviation: '4 0.5' }, fil);
+
+  el('rect', { x: 0, y: 0, width: 360, height: 250, fill: 'url(#d-bg)' }, svg);
+  el('rect', { x: 0, y: GY, width: 360, height: GB - GY, fill: '#3a342c' }, svg);
+  el('rect', { x: 0, y: GY, width: 360, height: GB - GY, fill: 'url(#d-lit)' }, svg);
+  const shadow = el('polygon', { fill: '#000', opacity: .86, filter: 'url(#d-blur)' }, svg);
+  const contact = el('rect', { y: GY, height: GB - GY, width: 14, fill: '#000', opacity: .55 }, svg);
+  const rayA = el('line', { stroke: '#ffd9a0', 'stroke-width': 1, 'stroke-dasharray': '3 4', opacity: .6 }, svg);
+  const rayB = el('line', { stroke: '#ffd9a0', 'stroke-width': 1, 'stroke-dasharray': '3 4', opacity: .6 }, svg);
+  el('rect', { x: CX1, y: CT, width: CX2 - CX1, height: GY - CT, fill: '#8d867a' }, svg);
+  el('rect', { x: CX1 + 10, y: CT, width: CX2 - CX1 - 10, height: GY - CT, fill: '#6d675d' }, svg);
+  const glow = el('circle', { fill: '#ffd9a0', opacity: .35 }, svg);
+  const core = el('circle', { fill: '#fff6e0' }, svg);
+  const ring = el('circle', { r: 20, fill: 'none', stroke: '#fff', 'stroke-width': 1.5, 'stroke-dasharray': '2 5', opacity: .7 }, svg);
+
+  const L = { x: 70, y: 48 };
+  let D = 24, moved = false;
+  const range = $('#r3'), out = $('#o3'), read = $('#read3'), hud = $('#hud3');
+  const proj = (px, py) => {
+    const t = (GY - L.y) / (py - L.y);
+    return L.x + (px - L.x) * t;
+  };
+  function upd() {
+    L.x = clamp(L.x, 18, 342); L.y = clamp(L.y, 20, 92);
+    const pl = proj(CX1, CT), pr = proj(CX2, CT);
+    const xs = [CX1, CX2, pl, pr], x1 = Math.min(...xs), x2 = Math.max(...xs);
+    set(shadow, { points: `${x1},${GY} ${x2},${GY} ${x2},${GB} ${x1},${GB}` });
+    // penumbra width at the far tip: D * (tip→ground along ray) / (lamp→tip)
+    const farTop = L.x < 180 ? [CX2, CT] : [CX1, CT];
+    const farG = proj(farTop[0], farTop[1]);
+    const a = Math.hypot(farTop[0] - L.x, farTop[1] - L.y), bb = Math.hypot(farG - farTop[0], GY - farTop[1]);
+    const pen = D * (bb / a);
+    set(gb, { stdDeviation: `${clamp(pen / 2.3, .2, 30).toFixed(2)} 0.5` });
+    set(contact, { x: L.x < 180 ? CX2 - 2 : CX1 - 12, opacity: clamp(.7 - D / 120, .2, .7) });
+    set(rayA, { x1: L.x, y1: L.y, x2: pl, y2: GY });
+    set(rayB, { x1: L.x, y1: L.y, x2: pr, y2: GY });
+    set(glow, { cx: L.x, cy: L.y, r: 10 + D * .55 });
+    set(core, { cx: L.x, cy: L.y, r: 4 + D * .26 });
+    set(ring, { cx: L.x, cy: L.y });
+    set(lit, { cx: L.x, cy: L.y });
+    out.textContent = D;
+    range.value = D;
+    $$('#sizes button').forEach(b => b.classList.toggle('on', +b.dataset.d === D));
+    const cm = Math.round(pen * 2);
+    hud.textContent = `Edge blur ≈ ${cm} cm`;
+    read.innerHTML = D <= 6 ? '<b>Point-like source:</b> the shadow is a crisp graphic shape. Maximum drama, maximum contrast.'
+      : D < 40 ? '<b>Medium source:</b> a clear core with a blurred edge. Notice the edge is sharpest where the object touches the ground.'
+      : '<b>Huge source:</b> light wraps around the column and the shadow almost dissolves. Calm, even, shadowless.';
+    if (D <= 5 && moved) complete(3);
+  }
+  const toLocal = (cx, cy) => {
+    const r = svg.getBoundingClientRect();
+    return { x: (cx - r.left) / r.width * 360, y: (cy - r.top) / r.height * 250 };
+  };
+  drag(svg, toLocal, p => Math.hypot(p.x - L.x, p.y - L.y) < 34, p => { L.x = p.x; L.y = p.y; upd(); });
+  range.addEventListener('input', () => { D = +range.value; moved = true; upd(); });
+  $$('#sizes button').forEach(b => b.addEventListener('click', () => { D = +b.dataset.d; moved = true; upd(); }));
+  upd();
+})();
+
+/* ---------- Chapter 5: light a plan (canvas, real traced shadows) ---------- */
+(function () {
+  const cv = $('#cv5'), ctx = cv.getContext('2d');
+  const WW = 340, WH = 390;
+  const tmp = document.createElement('canvas'), tctx = tmp.getContext('2d');
+  const acc = document.createElement('canvas'), actx = acc.getContext('2d');
+  const lt = document.createElement('canvas'), lctx = lt.getContext('2d');
+  const sum = document.createElement('canvas'), sctx = sum.getContext('2d');
+  const COLORS = [[255, 170, 90], [255, 242, 220], [140, 186, 255]];
+  const NAMES = ['candle', 'daylight', 'cool'];
+  const obs0 = () => [
+    { x: 120, y: 150, w: 30, h: 30 }, { x: 230, y: 150, w: 30, h: 30 },
+    { x: 175, y: 255, w: 30, h: 30 }, { x: 95, y: 320, w: 130, h: 10 },
+  ];
+  let obs = obs0();
+  let lights = [{ x: 70, y: 70, k: 0 }];
+  let sel = 0, soft = 8, k = 1, dpr = 1, dragging = false, queued = false;
+  const read = $('#read5'), range = $('#r5'), out = $('#o5');
+
+  function size() {
+    const w = cv.parentElement.clientWidth || 360;
+    k = w / WW;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.style.height = (WH * k) + 'px';
+    cv.width = Math.round(w * dpr); cv.height = Math.round(WH * k * dpr);
+    const ld = Math.min(dpr, 1.5);
+    for (const c of [tmp, acc, lt, sum]) { c.width = Math.round(w * ld); c.height = Math.round(WH * k * ld); }
+    draw();
+  }
+  function quad(c, a, b, p) {
+    const f = 60;
+    c.beginPath();
+    c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]);
+    c.lineTo(b[0] + (b[0] - p.x) * f, b[1] + (b[1] - p.y) * f);
+    c.lineTo(a[0] + (a[0] - p.x) * f, a[1] + (a[1] - p.y) * f);
+    c.closePath(); c.fill();
+  }
+  function draw() {
+    queued = false;
+    const ld = tmp.width / WW;
+    const N = soft === 0 ? 1 : (dragging ? 8 : 18);
+    actx.setTransform(1, 0, 0, 1, 0, 0);
+    actx.globalCompositeOperation = 'source-over';
+    actx.clearRect(0, 0, acc.width, acc.height);
+    sctx.setTransform(1, 0, 0, 1, 0, 0);
+    sctx.globalCompositeOperation = 'source-over';
+    sctx.clearRect(0, 0, sum.width, sum.height);
+    for (const Lt of lights) {
+      const col = COLORS[Lt.k];
+      // 1) average several jittered shadow masks across the light's area = soft penumbra
+      actx.setTransform(1, 0, 0, 1, 0, 0);
+      actx.globalCompositeOperation = 'source-over';
+      actx.clearRect(0, 0, acc.width, acc.height);
+      for (let i = 0; i < N; i++) {
+        const rr = N === 1 ? 0 : Math.sqrt((i + .5) / N) * soft, an = i * 2.39996;
+        const p = { x: Lt.x + Math.cos(an) * rr, y: Lt.y + Math.sin(an) * rr };
+        tctx.setTransform(ld, 0, 0, ld, 0, 0);
+        tctx.globalCompositeOperation = 'source-over';
+        tctx.fillStyle = '#fff'; tctx.fillRect(0, 0, WW, WH);
+        tctx.globalCompositeOperation = 'destination-out';
+        tctx.fillStyle = '#000';
+        for (const o of obs) {
+          const c = [[o.x, o.y], [o.x + o.w, o.y], [o.x + o.w, o.y + o.h], [o.x, o.y + o.h]];
+          for (let e = 0; e < 4; e++) quad(tctx, c[e], c[(e + 1) % 4], p);
+          tctx.fillRect(o.x, o.y, o.w, o.h);
+        }
+        actx.globalCompositeOperation = 'lighter';
+        actx.globalAlpha = 1 / N;
+        actx.drawImage(tmp, 0, 0);
+        actx.globalAlpha = 1;
+      }
+      // 2) light falloff gradient × visibility mask, added to the sum
+      lctx.setTransform(ld, 0, 0, ld, 0, 0);
+      lctx.globalCompositeOperation = 'source-over';
+      lctx.clearRect(0, 0, WW, WH);
+      const g = lctx.createRadialGradient(Lt.x, Lt.y, 0, Lt.x, Lt.y, 380);
+      g.addColorStop(0, rgb(col, 1)); g.addColorStop(.12, rgb(col, .78));
+      g.addColorStop(.45, rgb(col, .32)); g.addColorStop(1, rgb(col, 0));
+      lctx.fillStyle = g; lctx.fillRect(0, 0, WW, WH);
+      lctx.setTransform(1, 0, 0, 1, 0, 0);
+      lctx.globalCompositeOperation = 'destination-in';
+      lctx.drawImage(acc, 0, 0);
+      sctx.globalCompositeOperation = 'lighter';
+      sctx.drawImage(lt, 0, 0);
+    }
+    ctx.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#0e0e12'; ctx.fillRect(0, 0, WW, WH);
+    ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x <= WW; x += 34) { ctx.moveTo(x, 0); ctx.lineTo(x, WH); }
+    for (let y = 0; y <= WH; y += 34) { ctx.moveTo(0, y); ctx.lineTo(WW, y); }
+    ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(sum, 0, 0, cv.width, cv.height);
+    ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
+    for (const o of obs) {
+      ctx.fillStyle = '#1b1b21'; ctx.fillRect(o.x, o.y, o.w, o.h);
+      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5; ctx.strokeRect(o.x, o.y, o.w, o.h);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, WW, WH);
+    lights.forEach((Lt, i) => {
+      const col = COLORS[Lt.k];
+      const g = ctx.createRadialGradient(Lt.x, Lt.y, 0, Lt.x, Lt.y, 30);
+      g.addColorStop(0, rgb(col, .9)); g.addColorStop(1, rgb(col, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(Lt.x, Lt.y, 30, 0, 7); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(Lt.x, Lt.y, 6, 0, 7); ctx.fill();
+      ctx.strokeStyle = i === sel ? '#fff' : 'rgba(255,255,255,.4)';
+      ctx.lineWidth = i === sel ? 2 : 1; ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.arc(Lt.x, Lt.y, 17, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    });
+  }
+  const sched = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
+  function status() {
+    const names = [...new Set(lights.map(l => NAMES[l.k]))];
+    read.innerHTML = `<b>${lights.length} light${lights.length > 1 ? 's' : ''}</b> · ${names.join(' + ')}. ` +
+      (lights.length > 1 ? 'Each light throws its own shadow; where two overlap you get colour mixing.' : 'Drag the light behind a column: the shadow always points away from the source. Tap <b>+ Add light</b> to layer a second one.');
+    const ks = new Set(lights.map(l => l.k));
+    if (ks.has(0) && ks.has(2)) complete(5);
+    $$('#temps button').forEach(b => b.classList.toggle('on', +b.dataset.k === lights[sel].k));
+    $('#add5').disabled = lights.length >= 3;
+  }
+  const toLocal = (cx, cy) => {
+    const r = cv.getBoundingClientRect();
+    return { x: (cx - r.left) / k, y: (cy - r.top) / k };
+  };
+  drag(cv, toLocal, p => {
+    for (let i = lights.length - 1; i >= 0; i--) if (Math.hypot(p.x - lights[i].x, p.y - lights[i].y) < 30) return { l: lights[i], i };
+    for (let i = obs.length - 1; i >= 0; i--) {
+      const o = obs[i];
+      if (p.x > o.x - 14 && p.x < o.x + o.w + 14 && p.y > o.y - 14 && p.y < o.y + o.h + 14) return { o, i };
+    }
+    return null;
+  }, (p, t) => {
+    dragging = true;
+    t.dx = p.x - (t.l ? t.l.x : t.o.x); t.dy = p.y - (t.l ? t.l.y : t.o.y);
+    if (t.l) { sel = t.i; status(); }
+  }, (p, t) => {
+    const it = t.l || t.o, w = t.o ? t.o.w : 0, h = t.o ? t.o.h : 0;
+    it.x = clamp(p.x - t.dx, t.o ? 6 : 10, WW - w - (t.o ? 6 : 10));
+    it.y = clamp(p.y - t.dy, t.o ? 6 : 10, WH - h - (t.o ? 6 : 10));
+    sched();
+  });
+  const endDrag = () => { if (dragging) { dragging = false; sched(); } };
+  cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
+
+  $$('#temps button').forEach(b => b.addEventListener('click', () => { lights[sel].k = +b.dataset.k; status(); sched(); }));
+  range.addEventListener('input', () => { soft = +range.value; out.textContent = soft; sched(); });
+  $('#add5').onclick = () => {
+    if (lights.length >= 3) return;
+    lights.push({ x: 270, y: 70 + lights.length * 40, k: 2 });
+    sel = lights.length - 1; status(); sched();
+  };
+  $('#reset5').onclick = () => {
+    obs = obs0(); lights = [{ x: 70, y: 70, k: 0 }]; sel = 0; soft = 8;
+    range.value = 8; out.textContent = 8; status(); sched();
+  };
+  new ResizeObserver(size).observe(cv.parentElement);
+  status(); size();
+})();
+
+/* ---------- hero: light moves with scroll & touch ---------- */
+(function () {
+  const hero = $('.hero'), cast = $('.cast');
+  let px = 0;
+  function paint() {
+    const y = clamp(scrollY / Math.max(1, hero.offsetHeight), 0, 1.2);
+    cast.style.setProperty('--sk', (-14 + y * 34 + px * 8) + 'deg');
+    cast.style.setProperty('--tx', (px * 26) + 'px');
+    cast.style.setProperty('--ty', (y * 30) + 'px');
+    cast.style.setProperty('--sy', (1 + y * .35).toFixed(3));
+  }
+  addEventListener('scroll', paint, { passive: true });
+  hero.addEventListener('pointermove', e => { px = (e.clientX / innerWidth - .5) * 2; paint(); });
+  paint();
+})();
+
+/* ---------- reveal on scroll ---------- */
+(function () {
+  const items = $$('.chapter > *, .finale > *');
+  items.forEach(i => i.classList.add('rv'));
+  if (!('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('in')); return; }
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .08 });
+  items.forEach(i => io.observe(i));
+})();
+
+paintProgress();
+
+</script>
+</body>
+</html>
